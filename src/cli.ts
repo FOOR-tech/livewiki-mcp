@@ -77,9 +77,9 @@ class LiveWikiClient {
     return json as T;
   }
 
-  searchKeyword(q: string, wikiSlug?: string, limit = 10) {
+  searchKeyword(q: string, wikiSlugs: string[] | undefined, limit = 10) {
     const qs = new URLSearchParams({ q, limit: String(limit) });
-    if (wikiSlug) qs.set('wikiSlug', wikiSlug);
+    if (wikiSlugs && wikiSlugs.length > 0) qs.set('wikiSlugs', wikiSlugs.join(','));
     return this.call<
       Array<{
         id: string;
@@ -92,9 +92,9 @@ class LiveWikiClient {
     >(`/api/v1/tenants/${this.cfg.tenant}/search?${qs}`);
   }
 
-  searchSemantic(q: string, wikiSlug?: string, limit = 10) {
+  searchSemantic(q: string, wikiSlugs: string[] | undefined, limit = 10) {
     const qs = new URLSearchParams({ q, limit: String(limit) });
-    if (wikiSlug) qs.set('wikiSlug', wikiSlug);
+    if (wikiSlugs && wikiSlugs.length > 0) qs.set('wikiSlugs', wikiSlugs.join(','));
     return this.call<
       Array<{
         id: string;
@@ -108,7 +108,9 @@ class LiveWikiClient {
     >(`/api/v1/tenants/${this.cfg.tenant}/search/semantic?${qs}`);
   }
 
-  ask(question: string, wikiSlug?: string) {
+  ask(question: string, wikiSlugs: string[] | undefined) {
+    const body: Record<string, unknown> = { question };
+    if (wikiSlugs && wikiSlugs.length > 0) body.wikiSlugs = wikiSlugs;
     return this.call<{
       answer: string;
       sources: Array<{
@@ -119,7 +121,7 @@ class LiveWikiClient {
       }>;
     }>(`/api/v1/tenants/${this.cfg.tenant}/ai/ask`, {
       method: 'POST',
-      body: JSON.stringify({ question, wikiSlug }),
+      body: JSON.stringify(body),
     });
   }
 
@@ -160,7 +162,7 @@ const TOOLS: ToolDef[] = [
   {
     name: 'livewiki_search',
     description:
-      'Search pages in the LiveWiki knowledge base. Default mode "semantic" finds pages by meaning (best for questions); "keyword" matches literal words with highlighted fragments. Returns top results ranked by relevance. Use this to discover which pages might answer a question before reading their full content.',
+      'Search pages in the LiveWiki knowledge base. Default mode "semantic" finds pages by meaning (best for questions); "keyword" matches literal words with highlighted fragments. Returns top results ranked by relevance. Use this to discover which pages might answer a question before reading their full content. Scope with `wiki_slugs` to search one or several specific wikis; omit to search every wiki in the workspace.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -172,9 +174,16 @@ const TOOLS: ToolDef[] = [
           description:
             'semantic (vector similarity, default) or keyword (Postgres full-text with highlights).',
         },
+        wiki_slugs: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            'Optional — restrict to one or several wikis by slug (e.g. ["engineering-handbook", "onboarding"]). Use `livewiki_list_wikis` first to discover slugs. Omit to search across every wiki in the workspace.',
+        },
         wiki_slug: {
           type: 'string',
-          description: 'Optional — restrict to one wiki (e.g. "engineering-handbook").',
+          description:
+            'Deprecated single-wiki alias — prefer `wiki_slugs`. If both are provided, `wiki_slugs` wins.',
         },
         limit: { type: 'number', default: 10, minimum: 1, maximum: 50 },
       },
@@ -184,14 +193,21 @@ const TOOLS: ToolDef[] = [
   {
     name: 'livewiki_ask',
     description:
-      'Ask a natural-language question and get an answer synthesized from the wiki with citations. Uses RAG: embeds the question, retrieves the most relevant chunks, and returns an answer citing the source pages. Prefer this over search when the user has a question you can answer directly.',
+      'Ask a natural-language question and get an answer synthesized from the wiki with citations. Uses RAG: embeds the question, retrieves the most relevant chunks, and returns an answer citing the source pages. Prefer this over search when the user has a question you can answer directly. Scope with `wiki_slugs` to answer from one or several specific wikis; omit to draw from every wiki in the workspace.',
     inputSchema: {
       type: 'object',
       properties: {
         question: { type: 'string', description: 'The question to answer.' },
+        wiki_slugs: {
+          type: 'array',
+          items: { type: 'string' },
+          description:
+            'Optional — restrict retrieval to one or several wikis by slug. Omit to search every wiki in the workspace.',
+        },
         wiki_slug: {
           type: 'string',
-          description: 'Optional — scope the answer to one wiki.',
+          description:
+            'Deprecated single-wiki alias — prefer `wiki_slugs`. If both are provided, `wiki_slugs` wins.',
         },
       },
       required: ['question'],
@@ -256,17 +272,17 @@ async function main() {
           const mode = (a.mode === 'keyword' ? 'keyword' : 'semantic') as
             | 'keyword'
             | 'semantic';
-          const wikiSlug = typeof a.wiki_slug === 'string' ? a.wiki_slug : undefined;
+          const wikiSlugs = normalizeWikiSlugs(a);
           const limit = typeof a.limit === 'number' ? a.limit : 10;
           const results =
             mode === 'semantic'
-              ? await client.searchSemantic(query, wikiSlug, limit)
-              : await client.searchKeyword(query, wikiSlug, limit);
+              ? await client.searchSemantic(query, wikiSlugs, limit)
+              : await client.searchKeyword(query, wikiSlugs, limit);
           return {
             content: [
               {
                 type: 'text',
-                text: formatResults(mode, results),
+                text: formatResults(mode, results, wikiSlugs),
               },
             ],
           };
@@ -274,12 +290,15 @@ async function main() {
 
         case 'livewiki_ask': {
           const question = String(a.question ?? '');
-          const wikiSlug = typeof a.wiki_slug === 'string' ? a.wiki_slug : undefined;
-          const res = await client.ask(question, wikiSlug);
+          const wikiSlugs = normalizeWikiSlugs(a);
+          const res = await client.ask(question, wikiSlugs);
+          const scope = wikiSlugs && wikiSlugs.length > 0
+            ? ` (scoped to: ${wikiSlugs.join(', ')})`
+            : '';
           const body = [
             res.answer,
             '',
-            'Sources:',
+            `Sources${scope}:`,
             ...res.sources.map(
               (s, i) =>
                 `  [${i + 1}] ${s.pageTitle}${s.sectionPath ? ' > ' + s.sectionPath : ''} (relevance ${(s.relevance * 100).toFixed(0)}%)`,
@@ -361,29 +380,56 @@ async function main() {
 
 // ── Formatting helpers ────────────────────────────────────────────
 
+/**
+ * Normalize the wiki-scope arg accepting either the new `wiki_slugs: string[]`
+ * or the deprecated `wiki_slug: string`. `wiki_slugs` wins if both are present.
+ */
+function normalizeWikiSlugs(a: Record<string, unknown>): string[] | undefined {
+  if (Array.isArray(a.wiki_slugs)) {
+    const cleaned = a.wiki_slugs
+      .filter((s): s is string => typeof s === 'string')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (cleaned.length > 0) return cleaned;
+  }
+  if (typeof a.wiki_slug === 'string' && a.wiki_slug.trim()) {
+    return [a.wiki_slug.trim()];
+  }
+  return undefined;
+}
+
 function formatResults(
   mode: 'semantic' | 'keyword',
   results:
     | Awaited<ReturnType<LiveWikiClient['searchSemantic']>>
     | Awaited<ReturnType<LiveWikiClient['searchKeyword']>>,
+  scope?: string[],
 ): string {
-  if (results.length === 0) return '(no results)';
+  const header =
+    scope && scope.length > 0 ? `(scoped to: ${scope.join(', ')})\n\n` : '';
+  if (results.length === 0) return `${header}(no results)`;
   if (mode === 'semantic') {
-    return (results as Awaited<ReturnType<LiveWikiClient['searchSemantic']>>)
-      .map((r, i) => {
-        const score = (r.relevance * 100).toFixed(0);
-        const section = r.sectionPath ? ` > ${r.sectionPath}` : '';
-        return `[${i + 1}] (${score}%) ${r.title}${section} (slug: ${r.slug})\n    ${r.excerpt.replace(/\s+/g, ' ').slice(0, 240)}`;
-      })
-      .join('\n\n');
+    return (
+      header +
+      (results as Awaited<ReturnType<LiveWikiClient['searchSemantic']>>)
+        .map((r, i) => {
+          const score = (r.relevance * 100).toFixed(0);
+          const section = r.sectionPath ? ` > ${r.sectionPath}` : '';
+          return `[${i + 1}] (${score}%) ${r.title}${section} (slug: ${r.slug})\n    ${r.excerpt.replace(/\s+/g, ' ').slice(0, 240)}`;
+        })
+        .join('\n\n')
+    );
   }
-  return (results as Awaited<ReturnType<LiveWikiClient['searchKeyword']>>)
-    .map((r, i) => {
-      // strip <mark> wrappers for a clean text view
-      const excerpt = r.headline.replace(/<\/?mark>/g, '**');
-      return `[${i + 1}] (rank ${r.rank.toFixed(3)}) ${r.title} (slug: ${r.slug})\n    ${excerpt.replace(/\s+/g, ' ').slice(0, 260)}`;
-    })
-    .join('\n\n');
+  return (
+    header +
+    (results as Awaited<ReturnType<LiveWikiClient['searchKeyword']>>)
+      .map((r, i) => {
+        // strip <mark> wrappers for a clean text view
+        const excerpt = r.headline.replace(/<\/?mark>/g, '**');
+        return `[${i + 1}] (rank ${r.rank.toFixed(3)}) ${r.title} (slug: ${r.slug})\n    ${excerpt.replace(/\s+/g, ' ').slice(0, 260)}`;
+      })
+      .join('\n\n')
+  );
 }
 
 main().catch((err) => {

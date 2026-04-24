@@ -14,13 +14,30 @@ Five tools, all scoped to the tenant you configure:
 
 | Tool | Purpose |
 |---|---|
-| `livewiki_search` | Semantic (default) or keyword search across pages. Returns ranked excerpts. |
-| `livewiki_ask` | RAG Q&A with source citations — ideal when the user has a direct question. |
+| `livewiki_search` | Semantic (default) or keyword search across pages. Optional `wiki_slugs: string[]` to scope to one or several wikis. |
+| `livewiki_ask` | RAG Q&A with source citations — ideal when the user has a direct question. Optional `wiki_slugs: string[]` to scope the retrieval. |
 | `livewiki_list_wikis` | Discover the wikis available in the workspace. |
 | `livewiki_list_pages` | List pages in a specific wiki. |
 | `livewiki_get_page` | Read the full markdown body of a page. |
 
-Retrieval runs server-side (Voyage embeddings + pgvector) so your client pays only for the tokens it consumes in its own prompt, not for re-embedding on every query.
+### Scoping to specific wikis
+
+Both `livewiki_search` and `livewiki_ask` accept an optional `wiki_slugs` array. Examples:
+
+```jsonc
+// One wiki
+{ "query": "refunds on staging", "wiki_slugs": ["runbooks"] }
+
+// Two or three wikis — the model picks a union
+{ "question": "how do we onboard a new hire?", "wiki_slugs": ["onboarding", "engineering-handbook"] }
+
+// Omit entirely to search every wiki in the workspace
+{ "query": "incident response" }
+```
+
+Call `livewiki_list_wikis` first if your assistant doesn't already know which slugs exist. The deprecated singular `wiki_slug` is still accepted as an alias for a one-element array — `wiki_slugs` takes precedence if both are passed.
+
+Retrieval runs server-side on [LiveWiki](https://livewiki.foor.tech/)'s backend — **[HeliosDB](https://livewiki.foor.tech/)** (PostgreSQL with the pgvector extension, managed for HA) stores content + embeddings; **Voyage AI** (`voyage-3.5-lite`, 1024-dim) produces the vectors at ingest time. Your AI client pays only for the tokens in its own prompt, not for re-embedding on every query.
 
 ---
 
