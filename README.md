@@ -1,10 +1,10 @@
 # @foor.tech/livewiki-mcp
 
-**[LiveWiki](https://livewiki.foor.tech/)** over **MCP** — turn your team's knowledge base into a pluggable tool for any MCP-capable AI client (Claude Code, OpenAI Codex, Cursor, Zed, GitHub Copilot, …).
+**<a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">LiveWiki</a>** over **MCP** — turn your team's knowledge base into a pluggable tool for any MCP-capable AI client (Claude Code, OpenAI Codex, Cursor, Zed, GitHub Copilot, …).
 
 One index, many clients. Your AI tools query the same authoritative wiki your team already edits.
 
-> New to LiveWiki? Spin up a workspace at **https://livewiki.foor.tech/**, drop in a Confluence export, MediaWiki dump, or a folder of docs — then plug this MCP server into your editor and ask questions across everything.
+> New to LiveWiki? Spin up a workspace at **<a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">livewiki.foor.tech</a>**, drop in a Confluence export, MediaWiki dump, or a folder of docs — then plug this MCP server into your editor and ask questions across everything.
 
 ---
 
@@ -37,7 +37,7 @@ Both `livewiki_search` and `livewiki_ask` accept an optional `wiki_slugs` array.
 
 Call `livewiki_list_wikis` first if your assistant doesn't already know which slugs exist. The deprecated singular `wiki_slug` is still accepted as an alias for a one-element array — `wiki_slugs` takes precedence if both are passed.
 
-Retrieval runs server-side on [LiveWiki](https://livewiki.foor.tech/)'s backend — **[HeliosDB](https://livewiki.foor.tech/)** (PostgreSQL with the pgvector extension, managed for HA) stores content + embeddings; **Voyage AI** (`voyage-3.5-lite`, 1024-dim) produces the vectors at ingest time. Your AI client pays only for the tokens in its own prompt, not for re-embedding on every query.
+Retrieval runs server-side on <a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">LiveWiki</a>'s backend — **<a href="https://www.heliosdb.com/lite.html" target="_blank" rel="noopener">HeliosDB</a>** (PostgreSQL-compatible own-engine with the native vector storage and managed for HA) stores content + embeddings; **<a href="https://www.voyageai.com/" target="_blank" rel="noopener">Voyage AI</a>** (`voyage-3.5-lite`, 1024-dim) produces the vectors at ingest time. Your AI client pays only for the tokens in its own prompt, not for re-embedding on every query.
 
 ---
 
@@ -79,7 +79,7 @@ Three environment variables (or equivalent CLI flags):
 | `LIVEWIKI_TENANT` | `--tenant` | `my-workspace` |
 | `LIVEWIKI_API_TOKEN` | `--token` | `lw_…` (Settings → API tokens) |
 
-Generate a token in your [LiveWiki](https://livewiki.foor.tech/) workspace under **Settings → API tokens** (direct link: `https://livewiki.foor.tech/<your-tenant>/settings`). The token is shown **once** at creation — copy it immediately; only a short prefix is retained afterwards.
+Generate a token in your <a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">LiveWiki</a> workspace under **Settings → API tokens** (direct link: <a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">`livewiki.foor.tech/&lt;your-tenant&gt;/settings`</a>). The token is shown **once** at creation — copy it immediately; only a short prefix is retained afterwards.
 
 ---
 
@@ -194,9 +194,9 @@ Include a short prompt hint in your `CLAUDE.md` / `.cursorrules` / etc. so the m
 
 ## What LiveWiki is
 
-[LiveWiki](https://livewiki.foor.tech/) is an AI-powered wiki platform — modern MediaWiki replacement with auto-organize, stale detection, RAG Q&A, cross-links, and migration tools (MediaWiki, Confluence XML/HTML/Cloud, drop-and-organize for arbitrary files). This package is the MCP surface that exposes its retrieval to external AI clients.
+<a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">LiveWiki</a> is an AI-powered wiki platform — modern MediaWiki replacement with auto-organize, stale detection, RAG Q&A, cross-links, and migration tools (MediaWiki, Confluence XML/HTML/Cloud, drop-and-organize for arbitrary files). This package is the MCP surface that exposes its retrieval to external AI clients.
 
-Learn more and create a workspace: **https://livewiki.foor.tech/**
+Learn more and create a workspace: **<a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">livewiki.foor.tech</a>**
 
 ---
 
@@ -216,13 +216,15 @@ The server speaks MCP over stdio. For an interactive sanity check, point an MCP 
 
 ## Links
 
-- **LiveWiki**: https://livewiki.foor.tech/
-- **Source**: https://github.com/FOOR-tech/livewiki-mcp
-- **npm**: https://www.npmjs.com/package/@foor.tech/livewiki-mcp
-- **MCP spec**: https://modelcontextprotocol.io/
+- **LiveWiki**: <a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">livewiki.foor.tech</a>
+- **HeliosDB**: <a href="https://www.heliosdb.com/lite.html" target="_blank" rel="noopener">heliosdb.com/lite.html</a>
+- **Voyage AI**: <a href="https://www.voyageai.com/" target="_blank" rel="noopener">voyageai.com</a>
+- **Source**: <a href="https://github.com/FOOR-tech/livewiki-mcp" target="_blank" rel="noopener">github.com/FOOR-tech/livewiki-mcp</a>
+- **npm**: <a href="https://www.npmjs.com/package/@foor.tech/livewiki-mcp" target="_blank" rel="noopener">npmjs.com/package/@foor.tech/livewiki-mcp</a>
+- **MCP spec**: <a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener">modelcontextprotocol.io</a>
 
 ---
 
 ## License
 
-MIT © [foor.tech](https://livewiki.foor.tech/)
+MIT © <a href="https://livewiki.foor.tech/" target="_blank" rel="noopener">foor.tech</a>

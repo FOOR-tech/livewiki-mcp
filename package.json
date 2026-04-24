@@ -1,6 +1,6 @@
 {
   "name": "@foor.tech/livewiki-mcp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "MCP server that exposes a LiveWiki tenant's search + RAG to any MCP-capable AI client (Claude Code, Codex, Cursor, Zed, Copilot).",
   "type": "module",
   "main": "dist/cli.js",
