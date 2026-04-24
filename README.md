@@ -1,8 +1,10 @@
 # @foor.tech/livewiki-mcp
 
-**LiveWiki** over **MCP** — turn your team's knowledge base into a pluggable tool for any MCP-capable AI client (Claude Code, OpenAI Codex, Cursor, Zed, GitHub Copilot, …).
+**[LiveWiki](https://livewiki.foor.tech/)** over **MCP** — turn your team's knowledge base into a pluggable tool for any MCP-capable AI client (Claude Code, OpenAI Codex, Cursor, Zed, GitHub Copilot, …).
 
 One index, many clients. Your AI tools query the same authoritative wiki your team already edits.
+
+> New to LiveWiki? Spin up a workspace at **https://livewiki.foor.tech/**, drop in a Confluence export, MediaWiki dump, or a folder of docs — then plug this MCP server into your editor and ask questions across everything.
 
 ---
 
@@ -24,11 +26,29 @@ Retrieval runs server-side (Voyage embeddings + pgvector) so your client pays on
 
 ## Install
 
+Pick whichever style fits your workflow:
+
+**Run on demand (recommended for editors)** — no install needed; each session fetches the latest:
+
 ```bash
-npm install -g @foor.tech/livewiki-mcp
+npx -y @foor.tech/livewiki-mcp
 ```
 
-Or run on demand without installing — the patterns below use `npx -y`, which is the recommended way to wire it into an MCP-capable editor.
+**Global install** — put `livewiki-mcp` on your PATH:
+
+```bash
+npm install -g @foor.tech/livewiki-mcp
+livewiki-mcp --base-url=https://livewiki-api.foor.tech --tenant=my-workspace --token=lw_…
+```
+
+**Per-project install** — pin an exact version:
+
+```bash
+npm install --save-dev @foor.tech/livewiki-mcp
+npx livewiki-mcp
+```
+
+All editor snippets below use the `npx -y` form — it's stateless and works across machines without pre-installation.
 
 ---
 
@@ -42,7 +62,7 @@ Three environment variables (or equivalent CLI flags):
 | `LIVEWIKI_TENANT` | `--tenant` | `my-workspace` |
 | `LIVEWIKI_API_TOKEN` | `--token` | `lw_…` (Settings → API tokens) |
 
-Generate a token in your LiveWiki **Settings → API tokens**. It's shown once.
+Generate a token in your [LiveWiki](https://livewiki.foor.tech/) workspace under **Settings → API tokens** (direct link: `https://livewiki.foor.tech/<your-tenant>/settings`). The token is shown **once** at creation — copy it immediately; only a short prefix is retained afterwards.
 
 ---
 
@@ -157,7 +177,9 @@ Include a short prompt hint in your `CLAUDE.md` / `.cursorrules` / etc. so the m
 
 ## What LiveWiki is
 
-LiveWiki is an AI-powered wiki platform — modern MediaWiki replacement with auto-organize, stale detection, RAG Q&A, cross-links, and migration tools (MediaWiki, Confluence XML/HTML/Cloud, drop-and-organize for arbitrary files). This package is the MCP surface that exposes its retrieval to external AI clients.
+[LiveWiki](https://livewiki.foor.tech/) is an AI-powered wiki platform — modern MediaWiki replacement with auto-organize, stale detection, RAG Q&A, cross-links, and migration tools (MediaWiki, Confluence XML/HTML/Cloud, drop-and-organize for arbitrary files). This package is the MCP surface that exposes its retrieval to external AI clients.
+
+Learn more and create a workspace: **https://livewiki.foor.tech/**
 
 ---
 
@@ -175,6 +197,15 @@ The server speaks MCP over stdio. For an interactive sanity check, point an MCP 
 
 ---
 
+## Links
+
+- **LiveWiki**: https://livewiki.foor.tech/
+- **Source**: https://github.com/FOOR-tech/livewiki-mcp
+- **npm**: https://www.npmjs.com/package/@foor.tech/livewiki-mcp
+- **MCP spec**: https://modelcontextprotocol.io/
+
+---
+
 ## License
 
-MIT © foor.tech
+MIT © [foor.tech](https://livewiki.foor.tech/)
