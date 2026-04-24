@@ -1,0 +1,60 @@
+{
+  "name": "@foor.tech/livewiki-mcp",
+  "version": "1.0.0",
+  "description": "MCP server that exposes a LiveWiki tenant's search + RAG to any MCP-capable AI client (Claude Code, Codex, Cursor, Zed, Copilot).",
+  "type": "module",
+  "main": "dist/cli.js",
+  "types": "dist/cli.d.ts",
+  "bin": {
+    "livewiki-mcp": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/cli.js",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "livewiki",
+    "rag",
+    "claude",
+    "claude-code",
+    "cursor",
+    "zed",
+    "copilot",
+    "codex",
+    "ai-tools",
+    "knowledge-base",
+    "wiki"
+  ],
+  "author": "danimoya <daniel.moya@dimensigon.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/FOOR-tech/livewiki-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FOOR-tech/livewiki-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FOOR-tech/livewiki-mcp/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
