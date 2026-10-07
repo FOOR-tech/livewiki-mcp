@@ -1,7 +1,7 @@
 {
   "name": "@foor.tech/livewiki-mcp",
   "version": "1.1.1",
-  "description": "MCP server that exposes a LiveWiki tenant's search + RAG to any MCP-capable AI client (Claude Code, Codex, Cursor, Zed, Copilot).",
+  "description": "Stdio bridge to LiveWiki hosted MCP with current scoped knowledge, document and review tools.",
   "type": "module",
   "main": "dist/cli.js",
   "types": "dist/cli.d.ts",
@@ -17,7 +17,8 @@
     "build": "tsc && chmod +x dist/cli.js",
     "dev": "tsc --watch",
     "start": "node dist/cli.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "npm run build && node --test tests/*.test.mjs"
   },
   "keywords": [
     "mcp",
@@ -45,10 +46,10 @@
     "url": "https://github.com/FOOR-tech/livewiki-mcp/issues"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "1.32.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
